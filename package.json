@@ -1,0 +1,25 @@
+{
+  "name": "pythagoras-bevis",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Interaktivt bevis for Pythagoras' sætning med fire retvinklede trekanter",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node src/lib/checks.test.js"
+  },
+  "dependencies": {
+    "katex": "^0.16.22",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.4.1",
+    "vite": "^6.3.5"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
