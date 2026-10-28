@@ -1,25 +1,31 @@
 import { useState } from 'react'
 import StartScreen from './components/StartScreen.jsx'
 import Construction from './components/Construction.jsx'
-import StepPanel from './components/StepPanel.jsx'
+import StepWork from './components/StepWork.jsx'
+import Notepad from './components/Notepad.jsx'
 import { STEPS } from './lib/steps.js'
+import { displayParts } from './lib/display.js'
 
 export default function App() {
   const [mode, setMode] = useState(null) // null = startskærm, 'guide' | 'plain'
   const [run, setRun] = useState(0)
   const [step, setStep] = useState(1)
   const [answers, setAnswers] = useState({})
+  const [draft, setDraft] = useState('')
   const guide = mode === 'guide'
 
   function start(m) {
     setMode(m)
     setStep(1)
     setAnswers({})
+    setDraft('')
     setRun((r) => r + 1)
   }
 
-  function answer(n, raw, latex) {
-    setAnswers((a) => ({ ...a, [n]: { raw, latex } }))
+  function answer(n, raw) {
+    const parts = displayParts(STEPS[n - 1], raw)
+    setAnswers((a) => ({ ...a, [n]: { raw, ...parts } }))
+    setDraft('')
     setStep(n + 1)
   }
 
@@ -50,18 +56,22 @@ export default function App() {
       </header>
 
       <main className="workspace">
-        <section className="figure-col" aria-label="Figur">
-          <Construction key={run} step={step} onComplete={() => setStep((s) => Math.max(s, 2))} />
-        </section>
-        <aside className="panel" aria-label="Bevisets trin">
-          <StepPanel
+        <div className="left-col">
+          <section aria-label="Figur">
+            <Construction key={run} step={step} onComplete={() => setStep((s) => Math.max(s, 2))} />
+          </section>
+          <StepWork
             steps={STEPS}
             step={step}
-            answers={answers}
             guide={guide}
+            answers={answers}
             onAnswer={answer}
+            onDraft={setDraft}
             onRestart={() => setMode(null)}
           />
+        </div>
+        <aside className="right-col" aria-label="Blok med udledningen">
+          <Notepad steps={STEPS} step={step} answers={answers} draft={draft} />
         </aside>
       </main>
     </div>

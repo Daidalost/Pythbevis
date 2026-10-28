@@ -1,18 +1,22 @@
-// Figurens mål i "ruder" (1 enhed = 1 tern på papiret).
+// Figurens mål i "tern" (1 enhed = 1 tern på papiret). SVG: x mod højre, y nedad.
 // Kateterne er forskellige, så eleven skal holde styr på, hvilken vej trekanten vender.
-export const A = 2 // katete a
-export const B = 3 // katete b
+export const A = 2 // katete a (lodret i trekant ABC)
+export const B = 3 // katete b (grundlinjen i trekant ABC)
 export const S = A + B // det store kvadrats side
 
-// Trekantens tyngdepunkt (rotationspunkt) i forhold til den rette vinkel
-export const G = [A / 3, B / 3]
+// Trekant ABC i grundstilling: ret vinkel i C, grundlinjen b går mod venstre til A,
+// kateten a går op til B. Koordinater i forhold til C.
+const C0 = [0, 0]
+const A0 = [-B, 0]
+const B0 = [0, -A]
 
-// Hjørner relativt til tyngdepunktet: ret vinkel, ende af a, ende af b
-export const LOCAL = [
-  [0, 0],
-  [A, 0],
-  [0, B],
-].map(([x, y]) => [x - G[0], y - G[1]])
+// Tyngdepunktet er rotationspunkt
+export const G = [(C0[0] + A0[0] + B0[0]) / 3, (C0[1] + A0[1] + B0[1]) / 3]
+const rel = ([x, y]) => [x - G[0], y - G[1]]
+
+// Hjørner relativt til tyngdepunktet
+export const VERT = { C: rel(C0), A: rel(A0), B: rel(B0) }
+export const LOCAL = [VERT.C, VERT.A, VERT.B]
 
 export function rot([x, y], deg) {
   const t = (deg * Math.PI) / 180
@@ -23,22 +27,23 @@ export function rot([x, y], deg) {
 
 export const norm = (deg) => ((deg % 360) + 360) % 360
 
-// De fire pladser i skabelonen: trekanten i hjørne k er drejet k·90°
+// De fire pladser: trekanten i plads k er drejet k·90° med uret.
+// Plads 0 er trekant ABC nederst til højre, som ligger der fra start.
 const CORNERS = [
-  [0, 0],
-  [S, 0],
   [S, S],
   [0, S],
+  [0, 0],
+  [S, 0],
 ]
 export const SLOTS = CORNERS.map((c, k) => {
-  const g = rot(G, 90 * k)
-  return { rot: 90 * k, cx: c[0] + g[0], cy: c[1] + g[1] }
+  const g = rot([-G[0], -G[1]], 90 * k)
+  return { rot: 90 * k, cx: c[0] - g[0], cy: c[1] - g[1] }
 })
 
 // Det lille kvadrat (dannes af hypotenuserne)
 export const INNER = [
-  [A, 0],
-  [S, A],
-  [S - A, S],
-  [0, S - A],
+  [B, 0],
+  [S, B],
+  [A, S],
+  [0, A],
 ]

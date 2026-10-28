@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { parseInput, inputToLatex } from '../lib/expr.js'
 import { Tex } from './Tex.jsx'
 
@@ -17,9 +17,15 @@ const KEYS = [
   { label: '=', ins: '=' },
 ]
 
-export default function ExprInput({ prefix, initial = '', placeholder, onSubmit, inputId }) {
+export default function ExprInput({ prefix, initial = '', placeholder, onSubmit, onDraft, inputId }) {
   const [val, setVal] = useState(initial)
   const ref = useRef(null)
+
+  // Giv det, der skrives, videre, så det kan vises svagt på blokken
+  useEffect(() => {
+    onDraft?.(val)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [val])
 
   const preview = useMemo(() => {
     if (!val.trim()) return null

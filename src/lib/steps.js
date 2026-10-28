@@ -1,8 +1,9 @@
 // Trinenes tekster. Matematik skrives i $…$ (LaTeX).
-//   title  – vises altid i trinboksen
+//   title  – vises over svarfeltet under tegningen
 //   instr  – betjening af appen; vises altid på det aktive trin
 //   guide  – sproglig guide med fagbegreber; vises kun når guiden er slået til
-//   prefix – står foran svarfeltet (kun udtrykstrin)
+//   lhs    – venstresiden, der står foran svarfeltet og på blokken (kun udtrykstrin)
+//   note   – det, der skrives på blokken, når trin 1 er klaret
 //   prefill – svarfeltet starter med svaret fra forrige trin
 import { checks } from './checks.js'
 
@@ -12,16 +13,16 @@ export const STEPS = [
     kind: 'build',
     title: 'Placér trekanterne i skabelonen',
     instr:
-      'Træk de fire trekanter ind i det store kvadrat. Markér en trekant og drej den med knapperne under figuren, eller dobbeltklik på den. Den klikker på plads, når den vender rigtigt.',
+      'Trekant $ABC$ ligger allerede i skabelonen. Træk de tre andre trekanter ind, så de fylder det store kvadrat ud. Markér en trekant og drej den med knapperne under figuren, eller dobbeltklik på den. Den klikker på plads, når den vender rigtigt.',
     guide:
-      'De fire trekanter er ens og retvinklede med kateterne $a$ og $b$ og hypotenusen $c$. Læg dem, så kateterne ligger langs det store kvadrats sider, og hypotenuserne danner siderne i det lille kvadrat.',
-    doneText: 'Et stort kvadrat med sidelængden $a+b$ og et lille kvadrat med sidelængden $c$.',
+      'Trekant $ABC$ er retvinklet i $C$ med kateterne $a$ og $b$ og hypotenusen $c$. De tre andre trekanter er kongruente med $ABC$. Læg dem, så kateterne ligger langs det store kvadrats sider, og hypotenuserne danner siderne i det lille kvadrat.',
+    note: 'Fire trekanter, der er kongruente med $ABC$, danner et stort kvadrat med siden $a+b$ og et lille kvadrat med siden $c$.',
   },
   {
     n: 2,
     kind: 'expr',
     title: 'Arealet af det lille kvadrat',
-    prefix: 'A_{\\text{lille}} =',
+    lhs: 'A_{\\text{lille}}',
     guide:
       'Siderne i det lille kvadrat er trekanternes hypotenuser, så sidelængden er $c$. Arealet af et kvadrat er sidelængden i anden.',
   },
@@ -29,7 +30,7 @@ export const STEPS = [
     n: 3,
     kind: 'expr',
     title: 'Arealet af det store kvadrat',
-    prefix: 'A_{\\text{stor}} =',
+    lhs: 'A_{\\text{stor}}',
     guide:
       'Hver side i det store kvadrat består af en katete $a$ og en katete $b$. Skriv arealet med parentes – den skal ikke ganges ud endnu.',
   },
@@ -37,7 +38,7 @@ export const STEPS = [
     n: 4,
     kind: 'expr',
     title: 'Arealet af én trekant',
-    prefix: 'A_{\\text{trekant}} =',
+    lhs: 'A_{\\text{trekant}}',
     guide:
       'Kateterne står vinkelret på hinanden og kan bruges som grundlinje og højde. Trekanten er det halve af et rektangel med siderne $a$ og $b$.',
   },

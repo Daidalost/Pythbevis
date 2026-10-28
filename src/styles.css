@@ -133,6 +133,19 @@ button.link {
   pointer-events: none;
   user-select: none;
 }
+.vertex-label {
+  font-family: var(--math);
+  font-style: italic;
+  font-size: 0.42px;
+  fill: var(--blue-dark);
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+  user-select: none;
+}
+.piece.is-abc { cursor: default; }
+.piece.is-abc .tri { stroke-width: 0.06; }
+
 .area-label {
   font-family: var(--font);
   font-size: 0.62px;
@@ -236,7 +249,7 @@ button.link {
 .workspace {
   flex: 1;
   display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(330px, 1fr);
+  grid-template-columns: minmax(0, 1.3fr) minmax(340px, 1fr);
   gap: 24px;
   padding: 24px;
   align-items: start;
@@ -245,7 +258,8 @@ button.link {
   margin: 0 auto;
 }
 
-.figure-col { position: sticky; top: 16px; }
+.left-col { display: grid; gap: 16px; min-width: 0; }
+.right-col { position: sticky; top: 16px; min-width: 0; }
 .construction {
   background: var(--paper);
   border: 1px solid var(--line);
@@ -256,7 +270,7 @@ button.link {
   display: block;
   width: 100%;
   height: auto;
-  max-height: calc(100vh - 190px);
+  max-height: 50vh;
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
@@ -271,57 +285,7 @@ button.link {
   border-top: 1px solid var(--grid);
 }
 .toolbar .count { margin: 0 auto 0 8px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.fig-msg { margin: 6px 4px 2px; min-height: 1.5em; color: var(--muted); font-size: 0.95rem; }
-
-/* ---------- Trinboks ---------- */
-.panel {
-  background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 20px 20px 8px;
-}
-.steps { list-style: none; margin: 0; padding: 0; }
-.step { position: relative; padding: 0 0 18px 42px; }
-/* lodret linje, der binder trinene sammen */
-.step::before {
-  content: '';
-  position: absolute;
-  left: 14px; top: 30px; bottom: 2px;
-  width: 2px;
-  background: var(--grid);
-}
-.step:last-child::before { display: none; }
-.step-head { display: flex; align-items: flex-start; min-height: 30px; }
-.step-num {
-  position: absolute;
-  left: 0; top: 0;
-  width: 30px; height: 30px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  font-weight: 700;
-  font-size: 0.95rem;
-  border: 2px solid var(--line);
-  background: var(--paper);
-  color: var(--muted);
-}
-.step-title { padding-top: 3px; font-weight: 700; }
-.step-todo .step-title { color: var(--muted); font-weight: 400; }
-.step-active .step-num { background: var(--blue); border-color: var(--blue); color: #fff; }
-.step-active .step-title { color: var(--blue-dark); font-size: 1.08rem; }
-.step-done .step-num { background: var(--green-soft); border-color: var(--green); color: var(--green); }
-.step-done::before { background: #b9d8c4; }
-
-.step-body { margin-top: 8px; }
-.guide {
-  margin: 0 0 10px;
-  padding: 10px 12px;
-  background: var(--blue-soft);
-  border-radius: 8px;
-}
-.instr { margin: 0 0 12px; color: var(--muted); font-size: 0.95rem; }
-.step-done-text { margin: 4px 0 0; color: var(--muted); font-size: 0.95rem; }
-.step-answer { margin-top: 4px; font-size: 1.08rem; overflow-x: auto; }
+.fig-msg { flex-basis: 100%; margin: 0 0 2px; min-height: 1.5em; color: var(--muted); font-size: 0.95rem; }
 
 /* ---------- Svarfelt ---------- */
 .expr-row { display: flex; align-items: center; gap: 8px; }
@@ -352,24 +316,132 @@ button.link {
 .fb-form { background: var(--amber-soft); border-color: #d9a520; }
 .fb-error { background: #eef1f4; border-color: var(--muted); }
 
-/* ---------- Afslutning ---------- */
-.finale {
-  margin: 4px 0 14px;
-  padding: 18px;
+/* ---------- Aktivt trin (under tegningen) ---------- */
+.work {
+  background: var(--paper);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: var(--green-soft);
-  border: 1px solid #b9d8c4;
+  padding: 16px 20px 18px;
 }
-.finale h2 { font-size: 1.1rem; color: var(--green); }
-.finale .tex-display { display: block; font-size: 1.5rem; }
-.finale .katex-display { margin: 10px 0; text-align: left; }
+.work-head { display: flex; align-items: center; gap: 14px; margin-bottom: 6px; }
+.work-count { color: var(--muted); font-size: 0.92rem; font-variant-numeric: tabular-nums; }
+.progress { display: flex; gap: 5px; list-style: none; margin: 0; padding: 0; }
+.progress li { width: 22px; height: 5px; border-radius: 3px; background: var(--grid); }
+.progress li.is-done { background: var(--green); }
+.progress li.is-active { background: var(--blue); }
+.work-title { font-size: 1.2rem; color: var(--blue-dark); margin: 0 0 10px; }
+.guide {
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  background: var(--blue-soft);
+  border-radius: 8px;
+  max-width: 62em;
+}
+.instr { margin: 0 0 12px; color: var(--muted); font-size: 0.95rem; max-width: 62em; }
+
+.finale { background: var(--green-soft); border-color: #b9d8c4; }
+.finale .work-title { color: var(--green); }
+.finale .tex-display { display: block; font-size: 1.4rem; }
+.finale .katex-display { margin: 6px 0 10px; text-align: left; }
 .finale .katex-display > .katex { text-align: left; }
 .finale p { margin: 0 0 14px; }
+
+/* ---------- Blokken ---------- */
+.notepad {
+  --sq: 22px;
+  --num: 34px;
+  position: relative;
+  padding-top: 14px;
+  filter: drop-shadow(0 2px 3px rgba(31, 45, 61, 0.14));
+}
+/* spiralryg */
+.spiral {
+  position: absolute;
+  top: 0; left: 18px; right: 18px;
+  height: 28px;
+  background:
+    radial-gradient(circle at 50% 70%, var(--bg) 0 5px, transparent 5.5px) 0 0 / 26px 28px repeat-x,
+    linear-gradient(90deg, transparent 0 9px, #8b98a6 9px 12px, transparent 12px) 6px 0 / 26px 18px repeat-x;
+  z-index: 2;
+}
+.sheet {
+  position: relative;
+  min-height: 460px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  padding: 30px 18px 26px calc(var(--num) + 22px);
+  border-radius: 4px 4px 6px 6px;
+  background-color: #fdfefe;
+  background-image:
+    linear-gradient(90deg, transparent calc(var(--num) + 8px), rgba(196, 66, 66, 0.55) calc(var(--num) + 8px), rgba(196, 66, 66, 0.55) calc(var(--num) + 9.5px), transparent calc(var(--num) + 9.5px)),
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 100% 100%, var(--sq) var(--sq), var(--sq) var(--sq);
+  background-position: 0 0, 0 -1px, -1px 0;
+}
+.sheet-title {
+  font-size: 1.15rem;
+  display: inline-block;
+  border-bottom: 2px solid var(--ink);
+  margin: 0 0 10px;
+  padding-bottom: 1px;
+}
+.sheet-line { margin: 0 0 6px; }
+.sheet-proof { margin-top: 12px; font-weight: 700; }
+
+.margin-num {
+  position: absolute;
+  left: calc(-1 * var(--num) - 14px);
+  width: calc(var(--num) - 6px);
+  text-align: right;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  padding-top: 0.25em;
+}
+
+.note-row { position: relative; margin: 8px 0 14px; min-height: 1.6em; }
+.note-row .text { display: block; max-width: 34em; }
+
+/* Ligninger: trinnummer i margenen + tre kolonner, så lighedstegnene står under hinanden */
+.eq-group {
+  display: grid;
+  grid-template-columns: calc(var(--num) + 14px) max-content max-content minmax(0, 1fr);
+  row-gap: 10px;
+  margin: 0 0 22px calc(-1 * (var(--num) + 14px));
+  font-size: 1.08rem;
+}
+.eq-row { display: contents; }
+.eq-row .margin-num { position: static; width: auto; padding-right: 20px; }
+.eq-row .cell { min-height: 1.7em; display: flex; align-items: center; }
+.eq-row .lhs { justify-content: flex-end; }
+.eq-row .eq { padding: 0 0.35em; }
+.eq-row .rhs { min-width: 0; flex-wrap: wrap; }
+.eq-row .blank { grid-column: 2 / -1; }
+
+.is-draft .blank {
+  border-bottom: 1.5px dashed var(--line);
+  min-height: 1.6em;
+}
+.eq-row.is-draft .cell:not(.blank) { opacity: 0.4; }
+.note-row.is-draft .blank { display: block; }
+
+/* Nyskrevne linjer "skrives" frem fra venstre */
+@keyframes write { from { clip-path: inset(-0.6em 100% -0.6em 0); } to { clip-path: inset(-0.6em -0.6em -0.6em 0); } }
+.is-done .lhs, .note-row.is-done .text, .qed.is-done .cell { animation: write 0.45s ease-out both; }
+.is-done .eq { animation: write 0.15s ease-out 0.3s both; }
+.is-done .rhs { animation: write 0.5s ease-out 0.4s both; }
+
+/* Resultatet understreges to gange, som på papir */
+.is-result .lhs, .is-result .eq, .is-result .rhs { border-bottom: 3px double var(--ink); padding-bottom: 2px; }
+.is-result .rhs { justify-self: start; }
+.qed { margin-top: -6px; }
 
 /* ---------- Små skærme ---------- */
 @media (max-width: 900px) {
   .workspace { grid-template-columns: 1fr; padding: 16px; }
-  .figure-col { position: static; }
+  .right-col { position: static; }
+  .sheet { max-height: none; min-height: 0; }
   .figure { max-height: 70vh; }
   .start-inner { grid-template-columns: 1fr; gap: 24px; }
   .start-figure { max-width: 320px; }

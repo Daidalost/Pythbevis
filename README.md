@@ -1,8 +1,8 @@
 # Pythagoras' sætning – interaktivt bevis
 
-Eleverne lægger fire ens retvinklede trekanter i en skabelon (et stort og et lille kvadrat) og regner sig derefter frem til $c^2 = a^2 + b^2$ i otte trin:
+Trekant $ABC$ (retvinklet i $C$, grundlinje $b$) ligger fra start nederst til højre i en skabelon med et stort og et lille kvadrat. Eleverne lægger de tre andre kongruente trekanter ind og regner sig derefter frem til $c^2 = a^2 + b^2$ i otte trin:
 
-1. Placér trekanterne i skabelonen (træk og drej 90°)
+1. Placér de tre løse trekanter i skabelonen (træk og drej 90°)
 2. Arealet af det lille kvadrat: $c^2$
 3. Arealet af det store kvadrat: $(a+b)^2$
 4. Arealet af én trekant: $\tfrac12 ab$
@@ -12,6 +12,8 @@ Eleverne lægger fire ens retvinklede trekanter i en skabelon (et stort og et li
 8. Reducér: $2ab - 2ab$ forsvinder
 
 Ved start vælges **med sproglig guide** (forklaringer med fagbegreber og målrettede hint ved fejl) eller **uden guide** (kun overskrifter; hint kan hentes efter to forkerte forsøg). Guiden kan slås til og fra undervejs.
+
+Det aktive trin og svarfeltet står under tegningen. Til højre ligger en ternet blok, hvor udledningen skrives ind linje for linje med trinnummer i margenen og lighedstegnene under hinanden – som på papir. Det, eleven er ved at skrive, vises svagt på blokken, indtil svaret er godkendt.
 
 Eleven skriver selv udtrykkene. Appen tjekker, om svaret er matematisk korrekt, og om det står på den form, trinnet beder om (fx at $(a+b)^2$ ikke er ganget ud i trin 3).
 
@@ -36,7 +38,9 @@ npm test         # tester svarkontrollen
 
 | Fil | Indhold |
 |---|---|
-| `src/lib/steps.js` | Trinenes overskrifter, guidetekster og betjeningsvejledning |
+| `src/lib/steps.js` | Trinenes overskrifter, guidetekster, betjeningsvejledning og teksten til trin 1 på blokken |
+| `src/components/Notepad.jsx` | Blokken med udledningen |
+| `src/components/StepWork.jsx` | Det aktive trin under tegningen |
 | `src/lib/checks.js` | Svarkontrol og hint for hvert trin |
 | `src/lib/geometry.js` | Trekantens kateter (`A = 2`, `B = 3`) |
 | `src/styles.css` | Farver og layout |

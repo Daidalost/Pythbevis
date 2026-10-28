@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
-import { A, B, S, LOCAL, SLOTS, INNER, norm } from '../lib/geometry.js'
+import { A, B, S, LOCAL, VERT, SLOTS, INNER, norm } from '../lib/geometry.js'
 
-// Startpladser (tyngdepunkter): til højre for skabelonen – eller under den på smalle skærme
+// Startpladser (tyngdepunkter) for de tre løse trekanter:
+// til højre for skabelonen – eller under den på smalle skærme
 const LAYOUTS = {
   wide: {
-    tray: [[7.3, 1.1], [11.0, 1.1], [7.3, 4.8], [11.0, 4.8]],
+    tray: [[7.6, 1.6], [11.3, 1.6], [9.45, 5.2]],
     vb: [-1, -1.3, 14.4, 8.5],
   },
   tall: {
-    tray: [[0.9, 7.9], [4.7, 7.9], [0.9, 11.5], [4.7, 11.5]],
+    tray: [[1.4, 8.4], [5.2, 8.4], [3.3, 11.9]],
     vb: [-1.3, -1.3, 8.1, 15.1],
   },
 }
@@ -16,21 +17,22 @@ const pickLayout = () =>
   typeof window !== 'undefined' && window.matchMedia?.('(max-width: 560px)').matches ? LAYOUTS.tall : LAYOUTS.wide
 const VB_DONE = [-1.2, -1.2, 7.4, 7.4]
 const SNAP = 1.6 // så tæt skal tyngdepunktet være på pladsen (når trekanten vender rigtigt)
-const WARN = 1.4 // tæt på en plad, men vender forkert
+const WARN = 1.4 // tæt på en plads, men vender forkert
 
 const reduceMotion = () =>
   typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
-// Højst to forskellige startvinkler – så skal mindst to trekanter drejes
+// Startvinkler for de tre løse trekanter: højst én må kunne lægges uden at blive drejet
 function randomRots() {
   let r
-  do r = Array.from({ length: 4 }, () => 90 * Math.floor(Math.random() * 4))
-  while (new Set(r).size > 2)
+  do r = Array.from({ length: 3 }, () => 90 * Math.floor(Math.random() * 4))
+  while (new Set(r.filter((x) => x !== 0)).size > 1)
   return r
 }
 function makePieces(layout) {
   const r = randomRots()
-  return layout.tray.map(([cx, cy], i) => ({ id: i, cx, cy, rot: r[i], slot: null }))
+  const abc = { id: 0, abc: true, cx: SLOTS[0].cx, cy: SLOTS[0].cy, rot: 0, slot: 0 }
+  return [abc, ...layout.tray.map(([cx, cy], i) => ({ id: i + 1, cx, cy, rot: r[i], slot: null }))]
 }
 
 function snap(pieces, id) {
@@ -54,18 +56,32 @@ function snap(pieces, id) {
   return { pieces, result: near ? 'turn' : 'none' }
 }
 
-// Sidebetegnelser i trekantens eget koordinatsystem
+// Betegnelser i trekantens eget koordinatsystem (grundstilling = trekant ABC)
 const OFF = 0.36
-const [V0, V1, V2] = LOCAL
-const C = Math.hypot(A, B)
-const LABELS = [
-  { t: 'a', x: (V0[0] + V1[0]) / 2, y: V0[1] - OFF },
-  { t: 'b', x: V0[0] - OFF, y: (V0[1] + V2[1]) / 2 },
-  { t: 'c', x: (V1[0] + V2[0]) / 2 + (B / C) * OFF, y: (V1[1] + V2[1]) / 2 + (A / C) * OFF },
+const C_LEN = Math.hypot(A, B)
+const mid = (p, q) => [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2]
+const SIDE_LABELS = [
+  { t: 'a', p: mid(VERT.C, VERT.B), d: [OFF, 0] },
+  { t: 'b', p: mid(VERT.C, VERT.A), d: [0, OFF] },
+  { t: 'c', p: mid(VERT.A, VERT.B), d: [(-A / C_LEN) * OFF, (-B / C_LEN) * OFF] },
+].map((l) => ({ t: l.t, x: l.p[0] + l.d[0], y: l.p[1] + l.d[1] }))
+const VERTEX_LABELS = [
+  { t: 'A', x: VERT.A[0] - 0.12, y: VERT.A[1] + 0.46 },
+  { t: 'B', x: VERT.B[0] + 0.42, y: VERT.B[1] - 0.12 },
+  { t: 'C', x: VERT.C[0] + 0.32, y: VERT.C[1] + 0.34 },
 ]
 const RA = 0.3 // den rette vinkels markering
-const RIGHT_ANGLE = `M${V0[0] + RA} ${V0[1]} V${V0[1] + RA} H${V0[0]}`
+const [CX, CY] = VERT.C
+const RIGHT_ANGLE = `M${CX - RA} ${CY} V${CY - RA} H${CX}`
 const POINTS = LOCAL.map((p) => p.join(',')).join(' ')
+
+function Label({ x, y, rot, text, className }) {
+  return (
+    <g style={{ transform: `translate(${x}px, ${y}px) rotate(${-rot}deg)` }}>
+      <text className={className}>{text}</text>
+    </g>
+  )
+}
 
 export default function Construction({ step, onComplete }) {
   const [layout] = useState(pickLayout)
@@ -248,7 +264,7 @@ export default function Construction({ step, onComplete }) {
           if (e.target === svgRef.current || e.target.dataset.bg) setSel(null)
         }}
         role="group"
-        aria-label="Figur: fire retvinklede trekanter og en skabelon med to kvadrater"
+        aria-label="Figur: trekant ABC i en skabelon med to kvadrater og tre løse trekanter"
       >
         <defs>
           <pattern id="grid" width="1" height="1" patternUnits="userSpaceOnUse">
@@ -267,6 +283,7 @@ export default function Construction({ step, onComplete }) {
         {ordered.map((p) => {
           const cls = [
             'piece',
+            p.abc && 'is-abc',
             p.slot !== null && 'is-placed',
             p.id === sel && 'is-selected',
             p.id === draggingId && 'is-lifted',
@@ -277,15 +294,18 @@ export default function Construction({ step, onComplete }) {
           return (
             <g
               key={p.id}
+              data-id={p.id}
               className={cls}
               style={{ transform: `translate(${p.cx}px, ${p.cy}px) rotate(${p.rot}deg)` }}
               filter={p.id === draggingId ? 'url(#lift)' : undefined}
               tabIndex={p.slot === null && !complete ? 0 : -1}
               role={p.slot === null ? 'button' : undefined}
               aria-label={
-                p.slot === null
-                  ? `Trekant ${p.id + 1}. Flyt med piletasterne, drej med R, placér med Enter.`
-                  : `Trekant ${p.id + 1}, på plads`
+                p.abc
+                  ? 'Trekant ABC, ligger fast'
+                  : p.slot === null
+                    ? `Løs trekant ${p.id}. Flyt med piletasterne, drej med R, placér med Enter.`
+                    : `Trekant ${p.id}, på plads`
               }
               onPointerDown={(e) => onPieceDown(e, p)}
               onKeyDown={(e) => onKey(e, p)}
@@ -293,11 +313,13 @@ export default function Construction({ step, onComplete }) {
             >
               <polygon className="tri" points={POINTS} />
               <path className="right-angle" d={RIGHT_ANGLE} />
-              {LABELS.map((l) => (
-                <g key={l.t} style={{ transform: `translate(${l.x}px, ${l.y}px) rotate(${-p.rot}deg)` }}>
-                  <text className={`side-label side-${l.t}`}>{l.t}</text>
-                </g>
+              {SIDE_LABELS.map((l) => (
+                <Label key={l.t} x={l.x} y={l.y} rot={p.rot} text={l.t} className={`side-label side-${l.t}`} />
               ))}
+              {p.abc &&
+                VERTEX_LABELS.map((l) => (
+                  <Label key={l.t} x={l.x} y={l.y} rot={p.rot} text={l.t} className="vertex-label" />
+                ))}
             </g>
           )
         })}
@@ -319,23 +341,21 @@ export default function Construction({ step, onComplete }) {
       </svg>
 
       {!complete && (
-        <>
-          <div className="toolbar">
-            <button type="button" onClick={() => rotate(sel, -90)} disabled={!canRotate}>
-              <span aria-hidden="true">↺</span> Drej mod uret
-            </button>
-            <button type="button" onClick={() => rotate(sel, 90)} disabled={!canRotate}>
-              <span aria-hidden="true">↻</span> Drej med uret
-            </button>
-            <span className="count">{placed} af 4 på plads</span>
-            <button type="button" className="quiet" onClick={reshuffle}>
-              Bland trekanterne
-            </button>
-          </div>
+        <div className="toolbar">
+          <button type="button" onClick={() => rotate(sel, -90)} disabled={!canRotate}>
+            <span aria-hidden="true">↺</span> Drej mod uret
+          </button>
+          <button type="button" onClick={() => rotate(sel, 90)} disabled={!canRotate}>
+            <span aria-hidden="true">↻</span> Drej med uret
+          </button>
+          <span className="count">{placed - 1} af 3 på plads</span>
+          <button type="button" className="quiet" onClick={reshuffle}>
+            Bland trekanterne
+          </button>
           <p className="fig-msg" role="status" aria-live="polite">
-            {msg || (canRotate ? 'Trekanten er markeret.' : 'Markér en trekant for at dreje den.')}
+            {msg || (canRotate ? 'Trekanten er markeret.' : 'Markér en løs trekant for at dreje den.')}
           </p>
-        </>
+        </div>
       )}
     </div>
   )
